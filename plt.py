@@ -2,15 +2,20 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def show_graph(hist: np.ndarray)->None:
+def show_graph(hist_list: list)->None:
     """
     Builds a graph of histogram, that was found in get_histogram()
-    :param hist: histogram of the image
+    :param hist_list: list of image histogram for each coloe
     """
-    plt.plot(hist)
+    plt.plot(hist_list[0], color='blue', label='channel blue')
+    plt.plot(hist_list[1],color='red', label='channel red')
+    plt.plot(hist_list[2],color='green', label='channel green')
+
     plt.title('Image histogram')
     plt.xlabel('brightness')
     plt.ylabel('number of pixels')
+    plt.legend()
+
     plt.show()
 
 

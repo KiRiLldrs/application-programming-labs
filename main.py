@@ -28,6 +28,7 @@ def print_size(img:np.ndarray)->None:
 
 
 def main():
+
     img1, img2 = create_parser()
 
     try:
