@@ -18,21 +18,25 @@ def create_parser()->tuple:
 
 def main():
     ann, folder = create_parser()
-    df=df_operations.data_frame(ann,folder)
+    try:
+        df=df_operations.data_frame(ann)
+        df=df_operations.new_columns(df,folder)
 
-    print(df)
-    visual.print_statistic(df)
+        print(df)
+        visual.print_statistic(df)
 
-    new_frame = df_operations.new_data_frame(df)
-    print(new_frame)
+        new_frame = df_operations.new_data_frame(df)
+        print(new_frame)
 
-    new_frame = df_operations.new_column(new_frame)
-    print(new_frame)
+        new_frame = df_operations.add_area(new_frame)
+        print(new_frame)
 
-    final_frame = df_operations.sorted_data_frame(new_frame)
-    print(final_frame)
+        final_frame = df_operations.sorted_data_frame(new_frame)
+        print(final_frame)
 
-    visual.get_graph(df_operations.sorted_data_frame(df_operations.new_column(new_frame)))
+        visual.get_graph(final_frame)
+    except Exception as e:
+        print(f"An error occurred while accessing the directory: {e} ")
 
 
 if __name__ == "__main__":
