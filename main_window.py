@@ -1,14 +1,14 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QMessageBox
 from laba2 import ImageIterator
+from laba2.ImageIterator import Iterator
 
 
 class Ui_MainWindow(object):
     def __init__(self):
-        self.current_index = 0
-        self.data = None
         self.file_name = None
-        self.img = []
-
+        self.iterator = None
+        self.image_iter = None
 
     def setupUi(self, MainWindow: QtWidgets.QMainWindow)->None:
         """
@@ -21,17 +21,11 @@ class Ui_MainWindow(object):
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
 
-        self.button_back = QtWidgets.QPushButton(self.centralwidget)
-        self.button_back.setGeometry(QtCore.QRect(90, 700, 170, 70))
-        self.button_back.setStyleSheet("background-color: rgb(114, 147, 255)")
-        self.button_back.setObjectName("back")
-        self.button_back.clicked.connect(self.show_previous_item)
-
         self.button_forward = QtWidgets.QPushButton(self.centralwidget)
-        self.button_forward.setGeometry(QtCore.QRect(260, 700, 170, 70))
+        self.button_forward.setGeometry(QtCore.QRect(90, 700, 170, 70))
         self.button_forward.setStyleSheet("background-color: rgb(114, 147, 255)")
         self.button_forward.setObjectName("forward")
-        self.button_forward.clicked.connect(self.show_next_item)
+        self.button_forward.clicked.connect(self.show_next_img)
 
         self.select_file = QtWidgets.QPushButton(self.centralwidget)
         self.select_file.setGeometry(QtCore.QRect(1340, 700, 170, 70))
@@ -64,15 +58,14 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
 
-        self.button_back.setText(_translate("MainWindow", "back"))
         self.button_forward.setText(_translate("MainWindow","forward"))
         self.select_file.setText(_translate("MainWindow", "Select file"))
 
 
     def get_images(self)->list:
         """
-        Gets paths to images
-        :return: list of relative paths to images from csv file
+        #Gets paths to images
+        #:return: list of relative paths to images from csv file
         """
         self.data = ImageIterator.Iterator(self.file_name)
         img = []
@@ -83,7 +76,7 @@ class Ui_MainWindow(object):
 
     def open_file_dialog(self)->None:
         """
-        Allows to select specific csv file by pressing clicking the desired button
+        #Allows to select specific csv file by pressing clicking the desired button
         """
         options = QtWidgets.QFileDialog.Options()
         self.file_name, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Выберите изображение", "",
@@ -92,46 +85,53 @@ class Ui_MainWindow(object):
 
         self.img = self.get_images()
         self.load_image(0)
+        self.init_iterator()
+
+    def init_iterator(self):
+        self.iterator = Iterator(self.file_name)
+        self.image_iter = iter(self.iterator)
+
+    def show_next_img(self)->None:
+        """
+        Displays the next image from selected csv file
+        """
+        if self.file_name == None:
+            self.msg_box = QMessageBox()
+            self.msg_box.setText("The list of the images is empty")
+            self.msg_box.move(450, 700)
+            self.msg_box.resize(170, 70)
+
+            self.msg_box.exec_()
+            return
+
+        try:
+            row = next(self.image_iter)
+            image_path = row[1]
+            self.photo.setPixmap(QtGui.QPixmap(image_path))
+
+        except StopIteration:
+            self.init_iterator()
+            row = next(self.image_iter)
+            image_path = row[1]
+            self.photo.setPixmap(QtGui.QPixmap(image_path))
+
 
 
     def load_image(self, count)->None:
         """
-        Displays the image on the screen
-        :param count: the index of current image
+        #Displays the image on the screen
+        #:param count: the index of current image
         """
         if len(self.img) == 0:
-            print("Список изображений пуст.")
+            self.msg_box = QMessageBox()
+            self.msg_box.setText("The list of the images is empty")
+            self.msg_box.move(450, 700)
+            self.msg_box.resize(170, 70)
+
+            self.msg_box.exec_()
             return
         image_path=self.img[count]
         self.photo.setPixmap(QtGui.QPixmap(image_path))
-
-
-    def show_next_item(self)->None:
-        """
-        Allows to display the next image from csv file by pressing desired button
-        """
-        if len(self.img) == 0:
-            print("Список изображений пуст.")
-            return
-        if self.current_index == len(self.img) - 1:
-            self.current_index = 0
-        else:
-            self.current_index +=1
-        self.load_image(self.current_index)
-
-
-    def show_previous_item(self)->None:
-        """
-        Allows to display the previous image from csv file by pressing desired button
-        """
-        if len(self.img) == 0:
-            print("Список изображений пуст.")
-            return
-        if self.current_index <=0:
-            self.current_index = len(self.img) - 1
-        else:
-            self.current_index-=1
-        self.load_image(self.current_index)
 
 
 if __name__ == "__main__":
