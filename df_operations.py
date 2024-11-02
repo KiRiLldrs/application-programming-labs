@@ -7,7 +7,6 @@ def data_frame(filename: str)->pd.DataFrame:
     """
     Creates a DataFrame from annotation file and adds 3 new columns: Height, Width and Number of channels
     :param filename: path to the annotation file
-    :param folder: path to the folder with images
     :return: Completed DataFrame
     """
     list_of_names = ["Absolute_path", "Relative_path"]
@@ -15,6 +14,12 @@ def data_frame(filename: str)->pd.DataFrame:
     return df
 
 def new_columns(df:pd.DataFrame, folder: str):
+    """
+    Adds new columns to the DataFrame
+    :param df: original DataFrame
+    :param folder: folder with the images
+    :return: DataFrame with new columns
+    """
     height, width, channels = visual.get_info(folder)
     df["Height"] = height
     df["Width"] = width
@@ -29,13 +34,22 @@ def new_data_frame(df: pd.DataFrame)->pd.DataFrame:
     :param df: Original DataFrame
     :return: New DataFrame in which the conditions height<max_height and width<max_width are met
     """
+    params = print_request()
+    new_df = df.copy(deep=True)[(df["Height"]<params[0]) & (df["Width"]<params[1])].reset_index(drop=True)
+    return new_df
+
+def print_request()->list:
+    """
+    Requests max height and max width
+    :return: returns list of parameters
+    """
     print(f"Введите максимальное значение высоты:")
     max_height = int(input())
     print(f"\nВведите максимальное значение ширины:")
     max_width = int(input())
+    list_of_params = [max_height, max_width]
+    return list_of_params
 
-    new_df = df.copy(deep=True)[(df["Height"]<max_height) & (df["Width"]<max_width)].reset_index(drop=True)
-    return new_df
 
 
 def add_area(df: pd.DataFrame)->pd.DataFrame:
