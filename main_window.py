@@ -62,18 +62,6 @@ class Ui_MainWindow(object):
         self.select_file.setText(_translate("MainWindow", "Select file"))
 
 
-    def get_images(self)->list:
-        """
-        #Gets paths to images
-        #:return: list of relative paths to images from csv file
-        """
-        self.data = ImageIterator.Iterator(self.file_name)
-        img = []
-        for row in self.data:
-            img.append(row[1])
-        return img
-
-
     def open_file_dialog(self)->None:
         """
         #Allows to select specific csv file by pressing clicking the desired button
@@ -83,9 +71,8 @@ class Ui_MainWindow(object):
                                                              "CSV Files (*.csv)", options=options)
         if not self.file_name: return
 
-        self.img = self.get_images()
-        self.load_image(0)
         self.init_iterator()
+        self.load_image()
 
     def init_iterator(self):
         self.iterator = Iterator(self.file_name)
@@ -117,12 +104,12 @@ class Ui_MainWindow(object):
 
 
 
-    def load_image(self, count)->None:
+    def load_image(self)->None:
         """
         #Displays the image on the screen
         #:param count: the index of current image
         """
-        if len(self.img) == 0:
+        if self.file_name == None:
             self.msg_box = QMessageBox()
             self.msg_box.setText("The list of the images is empty")
             self.msg_box.move(450, 700)
@@ -130,7 +117,8 @@ class Ui_MainWindow(object):
 
             self.msg_box.exec_()
             return
-        image_path=self.img[count]
+        row=next(self.image_iter)
+        image_path = row[1]
         self.photo.setPixmap(QtGui.QPixmap(image_path))
 
 
